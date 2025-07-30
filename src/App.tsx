@@ -251,7 +251,7 @@ function App() {
                 className="bg-neutral-700 flex items-center justify-center perspective-[100vw] overflow-hidden viewport-3d"
                 style={{ gridArea: "preview" }}
             >
-                <Viewport items={items}/>
+                <Viewport items={items} selectedId={selectedId} />
             </main>
 
             {/* CONTROLS PANEL */}

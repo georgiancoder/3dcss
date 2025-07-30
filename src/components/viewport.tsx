@@ -3,6 +3,7 @@ import type { ObjectItem } from "../App";
 
 interface ViewportProps {
     items: ObjectItem[];
+    selectedId?: string | null;
 }
 
 const getTransform = (t: ObjectItem["transform"]) =>
@@ -10,7 +11,8 @@ const getTransform = (t: ObjectItem["transform"]) =>
     `rotateX(${t.rotateX}deg) rotateY(${t.rotateY}deg) rotateZ(${t.rotateZ}deg) ` +
     `scale3d(${t.scaleX}, ${t.scaleY}, ${t.scaleZ})`;
 
-const renderObject = (item: ObjectItem) => {
+// Add selectedId param to highlight selected object
+const renderObject = (item: ObjectItem, selectedId?: string | null): React.ReactNode => {
     if (item.type === "container") {
         return (
             <div
@@ -23,11 +25,14 @@ const renderObject = (item: ObjectItem) => {
                     width: item.style.width,
                     height: item.style.height,
                     transform: getTransform(item.transform),
-                    transformStyle: "preserve-3d"
+                    transformStyle: "preserve-3d",
+                    outline: item.id === selectedId ? "2px solid #3b82f6" : undefined,
+                    boxShadow: item.id === selectedId ? "0 0 0 2px #3b82f6" : undefined,
+                    zIndex: item.id === selectedId ? 2 : 1,
                 }}
                 title={item.name}
             >
-                {item.children && item.children.map(child => renderObject(child))}
+                {item.children && item.children.map(child => renderObject(child, selectedId))}
             </div>
         );
     }
@@ -43,13 +48,16 @@ const renderObject = (item: ObjectItem) => {
                 top: "50%",
                 translate: "-50% -50%",
                 transform: getTransform(item.transform),
+                outline: item.id === selectedId ? "2px solid #3b82f6" : undefined,
+                boxShadow: item.id === selectedId ? "0 0 0 2px #3b82f6" : undefined,
+                zIndex: item.id === selectedId ? 2 : 1,
             }}
             title={item.name}
         />
     );
 };
 
-const Viewport: React.FC<ViewportProps> = ({ items }) => {
+const Viewport: React.FC<ViewportProps> = ({ items, selectedId }) => {
     const [rotateX, setRotateX] = useState(0);
     const [rotateY, setRotateY] = useState(0);
     const [rotateZ, setRotateZ] = useState(0);
@@ -134,7 +142,7 @@ const Viewport: React.FC<ViewportProps> = ({ items }) => {
                     transition: "transform 0.2s cubic-bezier(.4,2,.6,1)",
                 }}
             >
-                {items.map(item => renderObject(item))}
+                {items.map(item => renderObject(item, selectedId))}
             </div>
         </div>
     );
