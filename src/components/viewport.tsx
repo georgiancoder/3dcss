@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import type { ObjectItem } from "../App";
 
 interface ViewportProps {
@@ -15,8 +15,42 @@ const Viewport: React.FC<ViewportProps> = ({ items }) => {
     const [rotateY, setRotateY] = useState(0);
     const [rotateZ, setRotateZ] = useState(0);
 
+    // For mouse drag rotation
+    const dragging = useRef(false);
+    const lastPos = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+    const lastRotate = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+
+    const handleMouseDown = (e: React.MouseEvent) => {
+        if (e.button !== 1) return; // Only middle mouse button
+        e.preventDefault();
+        dragging.current = true;
+        lastPos.current = { x: e.clientX, y: e.clientY };
+        lastRotate.current = { x: rotateX, y: rotateY };
+        window.addEventListener("mousemove", handleMouseMove);
+        window.addEventListener("mouseup", handleMouseUp);
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+        if (!dragging.current) return;
+        const dx = e.clientX - lastPos.current.x;
+        const dy = e.clientY - lastPos.current.y;
+        setRotateY(lastRotate.current.y + dx);
+        setRotateX(lastRotate.current.x - dy);
+    };
+
+    const handleMouseUp = (e: MouseEvent) => {
+        if (e.button !== 1) return;
+        dragging.current = false;
+        window.removeEventListener("mousemove", handleMouseMove);
+        window.removeEventListener("mouseup", handleMouseUp);
+    };
+
     return (
-        <div className="relative w-full h-full">
+        <div
+            className="relative w-full h-full"
+            onMouseDown={handleMouseDown}
+            style={{ cursor: dragging.current ? "grab" : "default" }}
+        >
             <div className="absolute bottom-0 right-0 z-10 bg-neutral-800 bg-opacity-80 p-2 rounded flex flex-col gap-2">
                 <label className="flex items-center gap-2 text-xs">
                     X
