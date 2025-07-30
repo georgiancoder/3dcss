@@ -4,6 +4,7 @@ import type { ObjectItem } from "../App";
 interface ViewportProps {
     items: ObjectItem[];
     selectedId?: string | null;
+    onSelect?: (id: string) => void;
 }
 
 const getTransform = (t: ObjectItem["transform"]) =>
@@ -11,8 +12,17 @@ const getTransform = (t: ObjectItem["transform"]) =>
     `rotateX(${t.rotateX}deg) rotateY(${t.rotateY}deg) rotateZ(${t.rotateZ}deg) ` +
     `scale3d(${t.scaleX}, ${t.scaleY}, ${t.scaleZ})`;
 
-// Add selectedId param to highlight selected object
-const renderObject = (item: ObjectItem, selectedId?: string | null): React.ReactNode => {
+// Add onSelect to propagate click
+const renderObject = (
+    item: ObjectItem,
+    selectedId?: string | null,
+    onSelect?: (id: string) => void
+): React.ReactNode => {
+    const handleClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        onSelect && onSelect(item.id);
+    };
+
     if (item.type === "container") {
         return (
             <div
@@ -29,10 +39,12 @@ const renderObject = (item: ObjectItem, selectedId?: string | null): React.React
                     outline: item.id === selectedId ? "2px solid #3b82f6" : undefined,
                     boxShadow: item.id === selectedId ? "0 0 0 2px #3b82f6" : undefined,
                     zIndex: item.id === selectedId ? 2 : 1,
+                    cursor: "pointer",
                 }}
                 title={item.name}
+                onClick={handleClick}
             >
-                {item.children && item.children.map(child => renderObject(child, selectedId))}
+                {item.children && item.children.map(child => renderObject(child, selectedId, onSelect))}
             </div>
         );
     }
@@ -51,13 +63,15 @@ const renderObject = (item: ObjectItem, selectedId?: string | null): React.React
                 outline: item.id === selectedId ? "2px solid #3b82f6" : undefined,
                 boxShadow: item.id === selectedId ? "0 0 0 2px #3b82f6" : undefined,
                 zIndex: item.id === selectedId ? 2 : 1,
+                cursor: "pointer",
             }}
             title={item.name}
+            onClick={handleClick}
         />
     );
 };
 
-const Viewport: React.FC<ViewportProps> = ({ items, selectedId }) => {
+const Viewport: React.FC<ViewportProps> = ({ items, selectedId, onSelect }) => {
     const [rotateX, setRotateX] = useState(0);
     const [rotateY, setRotateY] = useState(0);
     const [rotateZ, setRotateZ] = useState(0);
@@ -142,7 +156,7 @@ const Viewport: React.FC<ViewportProps> = ({ items, selectedId }) => {
                     transition: "transform 0.2s cubic-bezier(.4,2,.6,1)",
                 }}
             >
-                {items.map(item => renderObject(item, selectedId))}
+                {items.map(item => renderObject(item, selectedId, onSelect))}
             </div>
         </div>
     );

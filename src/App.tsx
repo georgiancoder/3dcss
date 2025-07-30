@@ -131,7 +131,12 @@ function App() {
   };
 
 
-    const updateItemById = (items: ObjectItem[], id: string, newProps: any): ObjectItem[] =>
+    // Update: set type for newProps
+    const updateItemById = (
+        items: ObjectItem[],
+        id: string,
+        newProps: Partial<ObjectItem>
+    ): ObjectItem[] =>
         items.map(item =>
             item.id === id
                 ? { ...item, ...newProps }
@@ -251,7 +256,7 @@ function App() {
                 className="bg-neutral-700 flex items-center justify-center perspective-[100vw] overflow-hidden viewport-3d"
                 style={{ gridArea: "preview" }}
             >
-                <Viewport items={items} selectedId={selectedId} />
+                <Viewport items={items} selectedId={selectedId} onSelect={handleSelect} />
             </main>
 
             {/* CONTROLS PANEL */}
