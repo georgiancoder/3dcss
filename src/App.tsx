@@ -81,6 +81,16 @@ function App() {
     setSelectedId(id);
   };
 
+  const handleDeleteItem = (id: string) => {
+    const updatedItems = items.filter(item => item.id !== id);
+    localStorage.setItem("objects", JSON.stringify(updatedItems));
+    setItems(updatedItems);
+    // If the deleted item was selected, select the last item or null
+    if (selectedId === id) {
+      setSelectedId(updatedItems.length > 0 ? updatedItems[updatedItems.length - 1].id : null);
+    }
+  };
+
   return (
     <>
         <div
@@ -116,7 +126,12 @@ function App() {
                     + Add Object
                 </button>
                 <div className="overflow-y-auto no-scrollbar flex-1">
-                    <ComponentList items={items} selectedId={selectedId} onSelect={handleSelect}/>
+                    <ComponentList
+                        items={items}
+                        selectedId={selectedId}
+                        onSelect={handleSelect}
+                        onDelete={handleDeleteItem}
+                    />
                 </div>
             </aside>
 
