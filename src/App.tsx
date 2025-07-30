@@ -3,6 +3,8 @@ import ComponentList from "./components/component-list.tsx";
 import AddNewItem from "./components/add-new-item.tsx";
 import { useState, useEffect } from "react";
 import Viewport from "./components/viewport.tsx";
+import BasicControlls from "./components/controlls/basic.tsx";
+import TransformControls from "./components/controlls/transforms.tsx";
 
 // Define the type for an item
 export interface ObjectItem {
@@ -150,18 +152,8 @@ function App() {
             >
                 <h3 className="font-semibold">Controls</h3>
                 <div className="overflow-y-auto no-scrollbar flex-1 space-y-2">
-                    <div>
-                        <label className="block text-sm mb-1">Translate X</label>
-                        <input type="range" min="-100" max="100" className="w-full" />
-                    </div>
-                    <div>
-                        <label className="block text-sm mb-1">Rotate Y</label>
-                        <input type="range" min="-180" max="180" className="w-full" />
-                    </div>
-                    <div>
-                        <label className="block text-sm mb-1">Scale</label>
-                        <input type="range" min="0.1" max="3" step="0.1" className="w-full" />
-                    </div>
+                    <BasicControlls/>
+                    <TransformControls/>
                 </div>
             </aside>
 
