@@ -6,10 +6,11 @@ import Viewport from "./components/viewport.tsx";
 import BasicControlls from "./components/controlls/basic.tsx";
 import TransformControls from "./components/controlls/transforms.tsx";
 
-// Define the type for an item
+// Extend ObjectItem to support children and type
 export interface ObjectItem {
   id: string;
   name: string;
+  type?: "object" | "container";
   transform: {
     translateX: number;
     translateY: number;
@@ -26,10 +27,19 @@ export interface ObjectItem {
     height: number;
     backgroundColor: string;
   };
+  children?: ObjectItem[];
+  parentId?: string | null;
 }
 
+// Add ModalOpenType
+type ModalOpenType =
+  | false
+  | "container"
+  | { type: "object"; parentId: string };
+
 function App() {
-  const [modalOpen, setModalOpen] = useState(false);
+  // Use ModalOpenType for modalOpen
+  const [modalOpen, setModalOpen] = useState<ModalOpenType>(false);
   const [items, setItems] = useState<ObjectItem[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -42,19 +52,20 @@ function App() {
   }, []);
 
   const handleAddObject = () => {
-    setModalOpen(true);
+    setModalOpen(true as ModalOpenType); // for backward compatibility, but you may want to use { type: "object" } instead
   };
 
   const handleCloseModal = () => {
     setModalOpen(false);
   };
 
-  const handleAddNewItem = (data: { name: string; width: number; height: number; color: string }) => {
+  const handleAddNewItem = (data: { name: string; width: number; height: number; color: string; type?: "object" | "container"; parentId?: string | null }) => {
     const itemsFromStorage: ObjectItem[] = JSON.parse(localStorage.getItem("objects") || "[]");
-    const newId = `obj_${itemsFromStorage.length + 1}`;
+    const newId = `obj_${Date.now()}`;
     const newItem: ObjectItem = {
       id: newId,
       name: data.name,
+      type: data.type || "object",
       transform: {
         translateX: 0,
         translateY: 0,
@@ -70,17 +81,43 @@ function App() {
         width: data.width,
         height: data.height,
         backgroundColor: data.color
-      }
+      },
+      parentId: data.parentId || null,
+      children: data.type === "container" ? [] : undefined
     };
-    const updatedItems = [...itemsFromStorage, newItem];
+
+    let updatedItems: ObjectItem[];
+    if (data.parentId) {
+      // Add as child to parent
+      updatedItems = itemsFromStorage.map(item =>
+        item.id === data.parentId && item.type === "container"
+          ? { ...item, children: [...(item.children || []), newItem] }
+          : item
+      );
+    } else {
+      updatedItems = [...itemsFromStorage, newItem];
+    }
+
     localStorage.setItem("objects", JSON.stringify(updatedItems));
     setItems(updatedItems);
     setSelectedId(newId);
     setModalOpen(false);
   };
 
+  const findItemById = (items: ObjectItem[], searchId: string): ObjectItem | null => {
+        for (const item of items) {
+            if (item.id === searchId) return item;
+            if (item.children) {
+                const found = findItemById(item.children, searchId);
+                if (found) return found;
+            }
+        }
+        return null;
+  };
+
   const handleSelect = (id: string) => {
-    setSelectedId(id);
+      const found = findItemById(items, id);
+      setSelectedId(found ? found.id : null);
   };
 
   const handleDeleteItem = (id: string) => {
@@ -93,30 +130,69 @@ function App() {
     }
   };
 
+
+    const updateItemById = (items: ObjectItem[], id: string, newProps: any): ObjectItem[] =>
+        items.map(item =>
+            item.id === id
+                ? { ...item, ...newProps }
+                : item.children
+                    ? { ...item, children: updateItemById(item.children, id, newProps) }
+                    : item
+        );
+
   // Add this handler to update transforms
     const handleTransformChange = (newTransform: ObjectItem["transform"], id: string) => {
-        const currentItem = items.find(item => item.id === id);
+        const currentItem = findItemById(items, id);
         if (!currentItem || JSON.stringify(currentItem.transform) === JSON.stringify(newTransform)) return;
 
-        const updatedItems = items.map(item =>
-            item.id === id ? { ...item, transform: newTransform } : item
-        );
+
+        const updatedItems = updateItemById(items, id, {transform: newTransform});
         setItems(updatedItems);
         localStorage.setItem("objects", JSON.stringify(updatedItems));
     };
 
     const hanldeStyleChange = (newStyle: ObjectItem["style"], id: string) => {
-        const currentItem = items.find(item => item.id === id);
+        const currentItem = findItemById(items, id);
         if (!currentItem || JSON.stringify(currentItem.style) === JSON.stringify(newStyle)) return;
 
-        const updatedItems = items.map(item =>
-            item.id === id ? { ...item, style: newStyle } : item
-        );
+        const updatedItems = updateItemById(items, id, {style: newStyle});
         setItems(updatedItems);
         localStorage.setItem("objects", JSON.stringify(updatedItems));
     }
 
-  const activeItem = items.find(item => item.id === selectedId) || null;
+  const handleCloneItem = (id: string) => {
+    const findAndClone = (item: ObjectItem): ObjectItem => {
+      const newId = `obj_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
+      return {
+        ...item,
+        id: newId,
+        name: item.name + " (clone)",
+        children: item.children ? item.children.map(findAndClone) : undefined
+      };
+    };
+
+    let updatedItems: ObjectItem[] = [];
+    const itemsFromStorage: ObjectItem[] = JSON.parse(localStorage.getItem("objects") || "[]");
+
+    const cloneAndInsert = (items: ObjectItem[]): ObjectItem[] => {
+      return items.flatMap(item => {
+        if (item.id === id) {
+          const clone = findAndClone(item);
+          return [item, clone];
+        }
+        if (item.children) {
+          return [{ ...item, children: cloneAndInsert(item.children) }];
+        }
+        return [item];
+      });
+    };
+
+    updatedItems = cloneAndInsert(itemsFromStorage);
+    localStorage.setItem("objects", JSON.stringify(updatedItems));
+    setItems(updatedItems);
+  };
+
+    const activeItem = findItemById(items, selectedId || "") || null;
 
   return (
     <>
@@ -152,12 +228,20 @@ function App() {
                 >
                     + Add Object
                 </button>
+                <button
+                    className="bg-green-500 py-1 rounded hover:bg-green-600 cursor-pointer mt-2"
+                    onClick={() => setModalOpen("container")}
+                >
+                    + Add Empty Container
+                </button>
                 <div className="overflow-y-auto no-scrollbar flex-1">
                     <ComponentList
                         items={items}
                         selectedId={selectedId}
                         onSelect={handleSelect}
                         onDelete={handleDeleteItem}
+                        onClone={handleCloneItem}
+                        onAddSubObject={(parentId) => setModalOpen({ type: "object", parentId })}
                     />
                 </div>
             </aside>
@@ -184,6 +268,7 @@ function App() {
                                 onChange={(newStyle, id) => hanldeStyleChange(newStyle, id)
                                 }
                             />
+                            <div className="h-0.5 bg-neutral-700"></div>
                             <TransformControls
                                 item={activeItem}
                                 onChange={(newTransform, id) => handleTransformChange(newTransform, id)}
@@ -207,9 +292,18 @@ function App() {
             </footer>
         </div>
         <AddNewItem
-            open={modalOpen}
+            open={!!modalOpen}
             onClose={handleCloseModal}
-            onAdd={handleAddNewItem}
+            onAdd={(data) => {
+              if (typeof modalOpen === "object" && modalOpen.parentId) {
+                handleAddNewItem({ ...data, parentId: modalOpen.parentId });
+              } else if (modalOpen === "container") {
+                handleAddNewItem({ ...data, type: "container" });
+              } else {
+                handleAddNewItem(data);
+              }
+            }}
+            type={modalOpen === "container" ? "container" : "object"}
         />
     </>
   )

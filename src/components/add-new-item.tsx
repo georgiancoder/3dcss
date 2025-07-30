@@ -3,10 +3,11 @@ import React, { useState } from "react";
 interface AddNewItemProps {
     open: boolean;
     onClose: () => void;
-    onAdd: (data: { name: string; width: number; height: number; color: string }) => void;
+    onAdd: (data: { name: string; width: number; height: number; color: string; type?: "object" | "container" }) => void;
+    type?: "object" | "container";
 }
 
-const AddNewItem: React.FC<AddNewItemProps> = ({ open, onClose, onAdd }) => {
+const AddNewItem: React.FC<AddNewItemProps> = ({ open, onClose, onAdd, type = "object" }) => {
     const [name, setName] = useState("");
     const [width, setWidth] = useState(100);
     const [height, setHeight] = useState(100);
@@ -16,7 +17,7 @@ const AddNewItem: React.FC<AddNewItemProps> = ({ open, onClose, onAdd }) => {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        onAdd({ name, width, height, color });
+        onAdd({ name, width, height, color, type });
         setName("");
         setWidth(100);
         setHeight(100);
@@ -42,7 +43,9 @@ const AddNewItem: React.FC<AddNewItemProps> = ({ open, onClose, onAdd }) => {
                 </button>
 
                 {/* Title */}
-                <h2 className="text-xl font-semibold mb-4">Add New Object</h2>
+                <h2 className="text-xl font-semibold mb-4">
+                    {type === "container" ? "Add Empty Container" : "Add New Object"}
+                </h2>
 
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -55,46 +58,48 @@ const AddNewItem: React.FC<AddNewItemProps> = ({ open, onClose, onAdd }) => {
                             onChange={(e) => setName(e.target.value)}
                             required
                             className="w-full bg-neutral-700 border border-neutral-600 rounded px-3 py-2 text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="e.g., Box 1"
+                            placeholder={type === "container" ? "e.g., Group 1" : "e.g., Box 1"}
                         />
                     </div>
 
-                    {/* Width & Height */}
-                    <div className="flex gap-3">
-                        <div className="flex-1">
-                            <label className="block text-sm text-gray-300 mb-1">Width</label>
-                            <input
-                                type="number"
-                                min={1}
-                                value={width}
-                                onChange={(e) => setWidth(Number(e.target.value))}
-                                required
-                                className="w-full bg-neutral-700 border border-neutral-600 rounded px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                        </div>
-                        <div className="flex-1">
-                            <label className="block text-sm text-gray-300 mb-1">Height</label>
-                            <input
-                                type="number"
-                                min={1}
-                                value={height}
-                                onChange={(e) => setHeight(Number(e.target.value))}
-                                required
-                                className="w-full bg-neutral-700 border border-neutral-600 rounded px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Color Picker */}
-                    <div>
-                        <label className="block text-sm text-gray-300 mb-1">Color</label>
-                        <input
-                            type="color"
-                            value={color}
-                            onChange={(e) => setColor(e.target.value)}
-                            className="w-10 h-10 p-0 border-none bg-transparent cursor-pointer"
-                        />
-                    </div>
+                    {/* Width & Height & Color only for object */}
+                    {type !== "container" && (
+                        <>
+                            <div className="flex gap-3">
+                                <div className="flex-1">
+                                    <label className="block text-sm text-gray-300 mb-1">Width</label>
+                                    <input
+                                        type="number"
+                                        min={1}
+                                        value={width}
+                                        onChange={(e) => setWidth(Number(e.target.value))}
+                                        required
+                                        className="w-full bg-neutral-700 border border-neutral-600 rounded px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+                                <div className="flex-1">
+                                    <label className="block text-sm text-gray-300 mb-1">Height</label>
+                                    <input
+                                        type="number"
+                                        min={1}
+                                        value={height}
+                                        onChange={(e) => setHeight(Number(e.target.value))}
+                                        required
+                                        className="w-full bg-neutral-700 border border-neutral-600 rounded px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm text-gray-300 mb-1">Color</label>
+                                <input
+                                    type="color"
+                                    value={color}
+                                    onChange={(e) => setColor(e.target.value)}
+                                    className="w-10 h-10 p-0 border-none bg-transparent cursor-pointer"
+                                />
+                            </div>
+                        </>
+                    )}
 
                     {/* Submit */}
                     <button

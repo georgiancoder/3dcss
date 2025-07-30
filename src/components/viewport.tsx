@@ -10,6 +10,45 @@ const getTransform = (t: ObjectItem["transform"]) =>
     `rotateX(${t.rotateX}deg) rotateY(${t.rotateY}deg) rotateZ(${t.rotateZ}deg) ` +
     `scale3d(${t.scaleX}, ${t.scaleY}, ${t.scaleZ})`;
 
+const renderObject = (item: ObjectItem) => {
+    if (item.type === "container") {
+        return (
+            <div
+                key={item.id}
+                style={{
+                    position: "absolute",
+                    left: "50%",
+                    top: "50%",
+                    translate: "-50% -50%",
+                    width: item.style.width,
+                    height: item.style.height,
+                    transform: getTransform(item.transform),
+                    transformStyle: "preserve-3d"
+                }}
+                title={item.name}
+            >
+                {item.children && item.children.map(child => renderObject(child))}
+            </div>
+        );
+    }
+    return (
+        <div
+            key={item.id}
+            style={{
+                width: item.style.width,
+                height: item.style.height,
+                backgroundColor: item.style.backgroundColor,
+                position: "absolute",
+                left: "50%",
+                top: "50%",
+                translate: "-50% -50%",
+                transform: getTransform(item.transform),
+            }}
+            title={item.name}
+        />
+    );
+};
+
 const Viewport: React.FC<ViewportProps> = ({ items }) => {
     const [rotateX, setRotateX] = useState(0);
     const [rotateY, setRotateY] = useState(0);
@@ -95,23 +134,7 @@ const Viewport: React.FC<ViewportProps> = ({ items }) => {
                     transition: "transform 0.2s cubic-bezier(.4,2,.6,1)",
                 }}
             >
-                {items.map(item => (
-                    <div
-                        key={item.id}
-                        style={{
-                            width: item.style.width,
-                            height: item.style.height,
-                            backgroundColor: item.style.backgroundColor,
-                            transform: getTransform(item.transform),
-                            position: "absolute",
-                            left: "50%",
-                            top: "50%",
-                            translate: "-50% -50%",
-                        }}
-                        title={item.name}
-                    />
-                ))}
-
+                {items.map(item => renderObject(item))}
             </div>
         </div>
     );
