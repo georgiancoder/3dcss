@@ -29,10 +29,14 @@ export interface ObjectItem {
 function App() {
   const [modalOpen, setModalOpen] = useState(false);
   const [items, setItems] = useState<ObjectItem[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("objects") || "[]");
     setItems(stored);
+    if (stored.length > 0) {
+      setSelectedId(stored[stored.length - 1].id);
+    }
   }, []);
 
   const handleAddObject = () => {
@@ -69,7 +73,12 @@ function App() {
     const updatedItems = [...itemsFromStorage, newItem];
     localStorage.setItem("objects", JSON.stringify(updatedItems));
     setItems(updatedItems);
+    setSelectedId(newId);
     setModalOpen(false);
+  };
+
+  const handleSelect = (id: string) => {
+    setSelectedId(id);
   };
 
   return (
@@ -107,7 +116,7 @@ function App() {
                     + Add Object
                 </button>
                 <div className="overflow-y-auto no-scrollbar flex-1">
-                    <ComponentList items={items}/>
+                    <ComponentList items={items} selectedId={selectedId} onSelect={handleSelect}/>
                 </div>
             </aside>
 
@@ -116,7 +125,7 @@ function App() {
                 className="bg-neutral-700 flex items-center justify-center perspective-1000 overflow-hidden viewport-3d"
                 style={{ gridArea: "preview" }}
             >
-                <Viewport items={items}/>
+                <Viewport items={items} selectedId={selectedId}/>
             </main>
 
             {/* CONTROLS PANEL */}
