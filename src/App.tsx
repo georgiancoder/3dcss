@@ -164,7 +164,7 @@ function App() {
 
             {/* PREVIEW AREA */}
             <main
-                className="bg-neutral-700 flex items-center justify-center perspective-1000 overflow-hidden viewport-3d"
+                className="bg-neutral-700 flex items-center justify-center perspective-[100vw] overflow-hidden viewport-3d"
                 style={{ gridArea: "preview" }}
             >
                 <Viewport items={items}/>
