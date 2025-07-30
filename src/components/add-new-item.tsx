@@ -25,74 +25,88 @@ const AddNewItem: React.FC<AddNewItemProps> = ({ open, onClose, onAdd }) => {
 
     return (
         <div
-            className="fixed inset-0 bg-black/80 bg-opacity-40 flex items-center justify-center z-50"
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50"
             onClick={onClose}
         >
             <div
-                className="bg-white rounded-lg shadow-lg p-6 min-w-[300px] relative"
-                onClick={e => e.stopPropagation()}
+                className="bg-neutral-800 text-white rounded-xl shadow-2xl p-6 w-[320px] relative"
+                onClick={(e) => e.stopPropagation()}
             >
+                {/* Close Button */}
                 <button
-                    className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+                    className="absolute top-2 right-2 text-gray-400 hover:text-white text-xl"
                     onClick={onClose}
                     aria-label="Close"
                 >
                     ×
                 </button>
-                <h2 className="text-lg font-semibold mb-4 text-black">Add New Item</h2>
+
+                {/* Title */}
+                <h2 className="text-xl font-semibold mb-4">Add New Object</h2>
+
+                {/* Form */}
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                    {/* Name */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                        <label className="block text-sm text-gray-300 mb-1">Name</label>
                         <input
                             type="text"
                             value={name}
-                            onChange={e => setName(e.target.value)}
+                            onChange={(e) => setName(e.target.value)}
                             required
-                            className="w-full border rounded px-2 py-1 text-black"
+                            className="w-full bg-neutral-700 border border-neutral-600 rounded px-3 py-2 text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="e.g., Box 1"
                         />
                     </div>
-                    <div className="flex gap-2">
+
+                    {/* Width & Height */}
+                    <div className="flex gap-3">
                         <div className="flex-1">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Width</label>
+                            <label className="block text-sm text-gray-300 mb-1">Width</label>
                             <input
                                 type="number"
-                                value={width}
                                 min={1}
-                                onChange={e => setWidth(Number(e.target.value))}
+                                value={width}
+                                onChange={(e) => setWidth(Number(e.target.value))}
                                 required
-                                className="w-full border rounded px-2 py-1 text-black"
+                                className="w-full bg-neutral-700 border border-neutral-600 rounded px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                         </div>
                         <div className="flex-1">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Height</label>
+                            <label className="block text-sm text-gray-300 mb-1">Height</label>
                             <input
                                 type="number"
-                                value={height}
                                 min={1}
-                                onChange={e => setHeight(Number(e.target.value))}
+                                value={height}
+                                onChange={(e) => setHeight(Number(e.target.value))}
                                 required
-                                className="w-full border rounded px-2 py-1 text-black"
+                                className="w-full bg-neutral-700 border border-neutral-600 rounded px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                         </div>
                     </div>
+
+                    {/* Color Picker */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Color</label>
+                        <label className="block text-sm text-gray-300 mb-1">Color</label>
                         <input
                             type="color"
                             value={color}
-                            onChange={e => setColor(e.target.value)}
-                            className="w-10 h-10 p-0 border-0 bg-transparent"
+                            onChange={(e) => setColor(e.target.value)}
+                            className="w-10 h-10 p-0 border-none bg-transparent cursor-pointer"
                         />
                     </div>
+
+                    {/* Submit */}
                     <button
                         type="submit"
-                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                        className="w-full bg-blue-500 hover:bg-blue-600 transition-colors px-4 py-2 rounded-md text-white font-medium"
                     >
                         Create
                     </button>
                 </form>
             </div>
         </div>
+
     );
 };
 
