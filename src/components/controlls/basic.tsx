@@ -1,20 +1,44 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect, useRef} from "react";
 import type { ObjectItem } from "../../App";
 
 interface BasicControllsProps {
     item: ObjectItem;
+    onChange?: (transform: ObjectItem["style"], id: string) => void;
 }
 
-const BasicControlls: React.FC<BasicControllsProps> = ({ item }) => {
+const BasicControlls: React.FC<BasicControllsProps> = ({ item, onChange }) => {
     const [width, setWidth] = useState<number>(item.style.width);
     const [height, setHeight] = useState<number>(item.style.height);
     const [color, setColor] = useState<string>(item.style.backgroundColor);
 
+    const prevTransformRef = useRef(item.style);
+    const prevIdRef = useRef(item.id);
+
     useEffect(() => {
-        setWidth(item.style.width);
-        setHeight(item.style.height);
-        setColor(item.style.backgroundColor);
-    }, [item]);
+        const prev = prevTransformRef.current;
+
+        const hasChanged =
+            prev.width !== width ||
+            prev.height !== height ||
+            prev.backgroundColor !== color;
+
+        if (onChange && hasChanged) {
+            onChange({
+                width,
+                height,
+                backgroundColor: color
+            }, item.id);
+        }
+    }, [width, height, color, onChange]);
+
+    useEffect(() => {
+        if(item.id !== prevIdRef?.current) {
+            setWidth(item.style.width);
+            setHeight(item.style.height);
+            setColor(item.style.backgroundColor);
+            prevIdRef.current = item.id;
+        }
+    }, [item, prevIdRef]);
 
     const handleWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setWidth(Number(e.target.value));

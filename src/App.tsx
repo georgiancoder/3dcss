@@ -105,6 +105,17 @@ function App() {
         localStorage.setItem("objects", JSON.stringify(updatedItems));
     };
 
+    const hanldeStyleChange = (newStyle: ObjectItem["style"], id: string) => {
+        const currentItem = items.find(item => item.id === id);
+        if (!currentItem || JSON.stringify(currentItem.style) === JSON.stringify(newStyle)) return;
+
+        const updatedItems = items.map(item =>
+            item.id === id ? { ...item, style: newStyle } : item
+        );
+        setItems(updatedItems);
+        localStorage.setItem("objects", JSON.stringify(updatedItems));
+    }
+
   const activeItem = items.find(item => item.id === selectedId) || null;
 
   return (
@@ -168,7 +179,11 @@ function App() {
                 <div className="overflow-y-auto no-scrollbar flex-1 space-y-2">
                     {selectedId && activeItem && (
                         <>
-                            <BasicControlls item={activeItem}/>
+                            <BasicControlls
+                                item={activeItem}
+                                onChange={(newStyle, id) => hanldeStyleChange(newStyle, id)
+                                }
+                            />
                             <TransformControls
                                 item={activeItem}
                                 onChange={(newTransform, id) => handleTransformChange(newTransform, id)}
