@@ -1,11 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { ObjectItem } from "../../App";
 
 interface TransformControlsProps {
     item: ObjectItem;
+    onChange?: (transform: ObjectItem["transform"], id: string) => void;
 }
 
-const TransformControls: React.FC<TransformControlsProps> = ({ item }) => {
+const TransformControls: React.FC<TransformControlsProps> = ({ item, onChange }) => {
     const [rotateX, setRotateX] = useState<number>(item.transform.rotateX);
     const [rotateY, setRotateY] = useState<number>(item.transform.rotateY);
     const [rotateZ, setRotateZ] = useState<number>(item.transform.rotateZ);
@@ -16,24 +17,71 @@ const TransformControls: React.FC<TransformControlsProps> = ({ item }) => {
     const [scaleY, setScaleY] = useState<number>(item.transform.scaleY);
     const [scaleZ, setScaleZ] = useState<number>(item.transform.scaleZ);
 
+    const prevTransformRef = useRef(item.transform);
+    const prevIdRef = useRef(item.id);
+
+    // Call onChange whenever any value changes
     useEffect(() => {
-        setRotateX(item.transform.rotateX);
-        setRotateY(item.transform.rotateY);
-        setRotateZ(item.transform.rotateZ);
-        setTranslateX(item.transform.translateX);
-        setTranslateY(item.transform.translateY);
-        setTranslateZ(item.transform.translateZ);
-        setScaleX(item.transform.scaleX);
-        setScaleY(item.transform.scaleY);
-        setScaleZ(item.transform.scaleZ);
-    }, [item]);
+        const prev = prevTransformRef.current;
+        const hasChanged =
+            prev.rotateX !== rotateX ||
+            prev.rotateY !== rotateY ||
+            prev.rotateZ !== rotateZ ||
+            prev.translateX !== translateX ||
+            prev.translateY !== translateY ||
+            prev.translateZ !== translateZ ||
+            prev.scaleX !== scaleX ||
+            prev.scaleY !== scaleY ||
+            prev.scaleZ !== scaleZ;
+
+        if (onChange && hasChanged) {
+            onChange({
+                rotateX,
+                rotateY,
+                rotateZ,
+                translateX,
+                translateY,
+                translateZ,
+                scaleX,
+                scaleY,
+                scaleZ
+            }, item.id);
+        }
+        prevTransformRef.current = {
+            rotateX,
+            rotateY,
+            rotateZ,
+            translateX,
+            translateY,
+            translateZ,
+            scaleX,
+            scaleY,
+            scaleZ
+        };
+    }, [rotateX, rotateY, rotateZ, translateX, translateY, translateZ, scaleX, scaleY, scaleZ, onChange]);
+
+
+    useEffect(() => {
+        if(item.id !== prevIdRef?.current) {
+            setRotateX(item.transform.rotateX);
+            setRotateY(item.transform.rotateY);
+            setRotateZ(item.transform.rotateZ);
+            setTranslateX(item.transform.translateX);
+            setTranslateY(item.transform.translateY);
+            setTranslateZ(item.transform.translateZ);
+            setScaleX(item.transform.scaleX);
+            setScaleY(item.transform.scaleY);
+            setScaleZ(item.transform.scaleZ);
+            prevIdRef.current = item.id;
+        }
+    }, [item, prevIdRef]);
 
     return (
         <>
             <h3 className="text-neutral-400 text-sm">Transform Styles:</h3>
             <form className="flex flex-col gap-4 mt-3">
                 {/* Rotate */}
-                <div className="flex gap-4">
+                <div className="flex gap-4 flex-wrap">
                     <label className="flex flex-col text-xs flex-1 w-[calc(50%-10px)]">
                         Rotate X
                         <input
@@ -72,7 +120,7 @@ const TransformControls: React.FC<TransformControlsProps> = ({ item }) => {
                     </label>
                 </div>
                 {/* Translate */}
-                <div className="flex gap-4">
+                <div className="flex gap-4 flex-wrap">
                     <label className="flex flex-col text-xs flex-1 w-[calc(50%-10px)]">
                         Translate X
                         <input
@@ -111,7 +159,7 @@ const TransformControls: React.FC<TransformControlsProps> = ({ item }) => {
                     </label>
                 </div>
                 {/* Scale */}
-                <div className="flex gap-4">
+                <div className="flex gap-4 flex-wrap">
                     <label className="flex flex-col text-xs flex-1 w-[calc(50%-10px)]">
                         Scale X
                         <input

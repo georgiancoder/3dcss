@@ -93,6 +93,18 @@ function App() {
     }
   };
 
+  // Add this handler to update transforms
+    const handleTransformChange = (newTransform: ObjectItem["transform"], id: string) => {
+        const currentItem = items.find(item => item.id === id);
+        if (!currentItem || JSON.stringify(currentItem.transform) === JSON.stringify(newTransform)) return;
+
+        const updatedItems = items.map(item =>
+            item.id === id ? { ...item, transform: newTransform } : item
+        );
+        setItems(updatedItems);
+        localStorage.setItem("objects", JSON.stringify(updatedItems));
+    };
+
   const activeItem = items.find(item => item.id === selectedId) || null;
 
   return (
@@ -144,7 +156,7 @@ function App() {
                 className="bg-neutral-700 flex items-center justify-center perspective-1000 overflow-hidden viewport-3d"
                 style={{ gridArea: "preview" }}
             >
-                <Viewport items={items} selectedId={selectedId}/>
+                <Viewport items={items}/>
             </main>
 
             {/* CONTROLS PANEL */}
@@ -157,7 +169,10 @@ function App() {
                     {selectedId && activeItem && (
                         <>
                             <BasicControlls item={activeItem}/>
-                            <TransformControls item={activeItem}/>
+                            <TransformControls
+                                item={activeItem}
+                                onChange={(newTransform, id) => handleTransformChange(newTransform, id)}
+                            />
                         </>
                     )}
                 </div>

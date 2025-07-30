@@ -3,7 +3,6 @@ import type { ObjectItem } from "../App";
 
 interface ViewportProps {
     items: ObjectItem[];
-    selectedId: string | null;
 }
 
 const getTransform = (t: ObjectItem["transform"]) =>
@@ -11,9 +10,9 @@ const getTransform = (t: ObjectItem["transform"]) =>
     `rotateX(${t.rotateX}deg) rotateY(${t.rotateY}deg) rotateZ(${t.rotateZ}deg) ` +
     `scale3d(${t.scaleX}, ${t.scaleY}, ${t.scaleZ})`;
 
-const Viewport: React.FC<ViewportProps> = ({ items, selectedId }) => {
+const Viewport: React.FC<ViewportProps> = ({ items }) => {
     return (
-        <div className="relative w-full h-full flex items-center justify-center">
+        <div className="relative w-full h-full flex items-center justify-center transform-3d">
             {items.map(item => (
                 <div
                     key={item.id}
@@ -26,8 +25,6 @@ const Viewport: React.FC<ViewportProps> = ({ items, selectedId }) => {
                         left: "50%",
                         top: "50%",
                         translate: "-50% -50%",
-                        outline: selectedId === item.id ? "3px solid #60a5fa" : undefined,
-                        zIndex: selectedId === item.id ? 2 : 1,
                     }}
                     title={item.name}
                 />
