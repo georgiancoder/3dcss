@@ -93,6 +93,8 @@ function App() {
     }
   };
 
+  const activeItem = items.find(item => item.id === selectedId) || null;
+
   return (
     <>
         <div
@@ -152,8 +154,12 @@ function App() {
             >
                 <h3 className="font-semibold">Controls</h3>
                 <div className="overflow-y-auto no-scrollbar flex-1 space-y-2">
-                    <BasicControlls/>
-                    <TransformControls/>
+                    {selectedId && activeItem && (
+                        <>
+                            <BasicControlls item={activeItem}/>
+                            <TransformControls item={activeItem}/>
+                        </>
+                    )}
                 </div>
             </aside>
 

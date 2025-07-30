@@ -1,15 +1,32 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import type { ObjectItem } from "../../App";
 
-const TransformControls = () => {
-    const [rotateX, setRotateX] = useState<number>(0);
-    const [rotateY, setRotateY] = useState<number>(0);
-    const [rotateZ, setRotateZ] = useState<number>(0);
-    const [translateX, setTranslateX] = useState<number>(0);
-    const [translateY, setTranslateY] = useState<number>(0);
-    const [translateZ, setTranslateZ] = useState<number>(0);
-    const [scaleX, setScaleX] = useState<number>(1);
-    const [scaleY, setScaleY] = useState<number>(1);
-    const [scaleZ, setScaleZ] = useState<number>(1);
+interface TransformControlsProps {
+    item: ObjectItem;
+}
+
+const TransformControls: React.FC<TransformControlsProps> = ({ item }) => {
+    const [rotateX, setRotateX] = useState<number>(item.transform.rotateX);
+    const [rotateY, setRotateY] = useState<number>(item.transform.rotateY);
+    const [rotateZ, setRotateZ] = useState<number>(item.transform.rotateZ);
+    const [translateX, setTranslateX] = useState<number>(item.transform.translateX);
+    const [translateY, setTranslateY] = useState<number>(item.transform.translateY);
+    const [translateZ, setTranslateZ] = useState<number>(item.transform.translateZ);
+    const [scaleX, setScaleX] = useState<number>(item.transform.scaleX);
+    const [scaleY, setScaleY] = useState<number>(item.transform.scaleY);
+    const [scaleZ, setScaleZ] = useState<number>(item.transform.scaleZ);
+
+    useEffect(() => {
+        setRotateX(item.transform.rotateX);
+        setRotateY(item.transform.rotateY);
+        setRotateZ(item.transform.rotateZ);
+        setTranslateX(item.transform.translateX);
+        setTranslateY(item.transform.translateY);
+        setTranslateZ(item.transform.translateZ);
+        setScaleX(item.transform.scaleX);
+        setScaleY(item.transform.scaleY);
+        setScaleZ(item.transform.scaleZ);
+    }, [item]);
 
     return (
         <>

@@ -1,9 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import type { ObjectItem } from "../../App";
 
-const BasicControlls = () => {
-    const [width, setWidth] = useState<number>(100);
-    const [height, setHeight] = useState<number>(100);
-    const [color, setColor] = useState<string>("#ff0000");
+interface BasicControllsProps {
+    item: ObjectItem;
+}
+
+const BasicControlls: React.FC<BasicControllsProps> = ({ item }) => {
+    const [width, setWidth] = useState<number>(item.style.width);
+    const [height, setHeight] = useState<number>(item.style.height);
+    const [color, setColor] = useState<string>(item.style.backgroundColor);
+
+    useEffect(() => {
+        setWidth(item.style.width);
+        setHeight(item.style.height);
+        setColor(item.style.backgroundColor);
+    }, [item]);
 
     const handleWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setWidth(Number(e.target.value));
