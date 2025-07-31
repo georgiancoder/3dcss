@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import Viewport from "./components/viewport.tsx";
 import BasicControlls from "./components/controlls/basic.tsx";
 import TransformControls from "./components/controlls/transforms.tsx";
+import OverlayMenu from "./components/overlay-menu.tsx";
 
 // Extend ObjectItem to support children and type
 export interface ObjectItem {
@@ -42,6 +43,7 @@ function App() {
   const [modalOpen, setModalOpen] = useState<ModalOpenType>(false);
   const [items, setItems] = useState<ObjectItem[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [overlayOpen, setOverlayOpen] = useState(false);
 
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("objects") || "[]");
@@ -253,9 +255,25 @@ function App() {
 
             {/* PREVIEW AREA */}
             <main
-                className="bg-neutral-700 flex items-center justify-center perspective-[100vw] overflow-hidden viewport-3d"
+                className="bg-neutral-700 flex items-center justify-center perspective-[100vw] overflow-hidden viewport-3d relative"
                 style={{ gridArea: "preview" }}
             >
+                {/* Arrow button */}
+                <button
+                    className="absolute top-2 right-2 z-20 bg-blue-500 text-white rounded-full p-2 shadow hover:bg-blue-600"
+                    style={{ width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center" }}
+                    onClick={() => setOverlayOpen(true)}
+                    title="Show Overlay"
+                >
+                    {/* Left-pointing arrow */}
+                    <svg width="20" height="20" viewBox="0 0 20 20">
+                        <path d="M13 5l-5 5 5 5" stroke="white" strokeWidth="2" fill="none" />
+                    </svg>
+                </button>
+                {/* Overlay */}
+                {overlayOpen && (
+                    <OverlayMenu onClose={() => setOverlayOpen(false)} />
+                )}
                 <Viewport items={items} selectedId={selectedId} onSelect={handleSelect} />
             </main>
 
@@ -288,12 +306,7 @@ function App() {
                 className="bg-neutral-800 p-3 flex items-center justify-between"
                 style={{ gridArea: "export" }}
             >
-                <code className="text-green-400">
-                    transform: rotateX(45deg) translateZ(50px);
-                </code>
-                <button className="bg-blue-500 px-3 py-1 rounded hover:bg-blue-600">
-                    Copy
-                </button>
+                addvertising place
             </footer>
         </div>
         <AddNewItem

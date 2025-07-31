@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import type { ObjectItem } from "../App";
 
 interface ComponentListProps {
@@ -18,15 +18,51 @@ const ComponentList: React.FC<ComponentListProps> = ({
     onClone,
     onAddSubObject
 }) => {
-    // Track collapsed/expanded state for containers
-    const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+    // Load collapsed state from localStorage or default to collapsed
+    const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() => {
+        try {
+            const stored = localStorage.getItem("collapsedContainers");
+            return stored ? JSON.parse(stored) : {};
+        } catch {
+            return {};
+        }
+    });
 
-    // Toggle collapse for a container
+    // Collapse containers by default when items change (first load only)
+    useEffect(() => {
+        if (Object.keys(collapsed).length === 0) {
+            const newCollapsed: Record<string, boolean> = {};
+            const markContainers = (objs: ObjectItem[]) => {
+                objs.forEach(obj => {
+                    if (obj.type === "container") {
+                        newCollapsed[obj.id] = true;
+                    }
+                    if (obj.children && obj.children.length > 0) {
+                        markContainers(obj.children);
+                    }
+                });
+            };
+            markContainers(items);
+            setCollapsed(newCollapsed);
+            localStorage.setItem("collapsedContainers", JSON.stringify(newCollapsed));
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [items]);
+
+    // Save collapsed state to localStorage whenever it changes
+    useEffect(() => {
+        localStorage.setItem("collapsedContainers", JSON.stringify(collapsed));
+    }, [collapsed]);
+
     const handleToggle = (id: string) => {
-        setCollapsed(prev => ({
-            ...prev,
-            [id]: !prev[id]
-        }));
+        setCollapsed(prev => {
+            const updated = {
+                ...prev,
+                [id]: !prev[id]
+            };
+            localStorage.setItem("collapsedContainers", JSON.stringify(updated));
+            return updated;
+        });
     };
 
     // Recursive render function with collapse support

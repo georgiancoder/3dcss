@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import type { ObjectItem } from "../App";
 
 interface ViewportProps {
@@ -20,7 +20,8 @@ const renderObject = (
 ): React.ReactNode => {
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
-        onSelect && onSelect(item.id);
+        if (onSelect)
+            onSelect(item.id);
     };
 
     if (item.type === "container") {
@@ -72,9 +73,30 @@ const renderObject = (
 };
 
 const Viewport: React.FC<ViewportProps> = ({ items, selectedId, onSelect }) => {
-    const [rotateX, setRotateX] = useState(0);
-    const [rotateY, setRotateY] = useState(0);
-    const [rotateZ, setRotateZ] = useState(0);
+    // Load rotation from localStorage
+    const [rotateX, setRotateX] = useState(() => {
+        const v = localStorage.getItem("viewportRotateX");
+        return v ? Number(v) : 0;
+    });
+    const [rotateY, setRotateY] = useState(() => {
+        const v = localStorage.getItem("viewportRotateY");
+        return v ? Number(v) : 0;
+    });
+    const [rotateZ, setRotateZ] = useState(() => {
+        const v = localStorage.getItem("viewportRotateZ");
+        return v ? Number(v) : 0;
+    });
+
+    // Save rotation to localStorage when changed
+    useEffect(() => {
+        localStorage.setItem("viewportRotateX", String(rotateX));
+    }, [rotateX]);
+    useEffect(() => {
+        localStorage.setItem("viewportRotateY", String(rotateY));
+    }, [rotateY]);
+    useEffect(() => {
+        localStorage.setItem("viewportRotateZ", String(rotateZ));
+    }, [rotateZ]);
 
     // For mouse drag rotation
     const dragging = useRef(false);
@@ -150,7 +172,7 @@ const Viewport: React.FC<ViewportProps> = ({ items, selectedId, onSelect }) => {
                     <span>{rotateZ}°</span>
                 </label>
             </div>
-            <div className="relative w-full h-full flex flex-col items-center justify-center transform-3d"
+            <div className="relative w-full h-full flex flex-col items-center justify-center transform-3d" id="viewport"
                 style={{
                     transform: `rotateX(${rotateX}deg) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg)`,
                     transition: "transform 0.2s cubic-bezier(.4,2,.6,1)",
