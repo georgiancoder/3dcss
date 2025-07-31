@@ -41,6 +41,8 @@ const renderObject = (
                     boxShadow: item.id === selectedId ? "0 0 0 2px #3b82f6" : undefined,
                     zIndex: item.id === selectedId ? 2 : 1,
                     cursor: "pointer",
+                    opacity: item?.style?.opacity,
+                    borderRadius: typeof item?.style?.borderRadius === "number" ? `${item.style.borderRadius}%` : undefined,
                 }}
                 title={item.name}
                 onClick={handleClick}
@@ -65,6 +67,8 @@ const renderObject = (
                 boxShadow: item.id === selectedId ? "0 0 0 2px #3b82f6" : undefined,
                 zIndex: item.id === selectedId ? 2 : 1,
                 cursor: "pointer",
+                opacity: item?.style?.opacity,
+                borderRadius: typeof item?.style?.borderRadius === "number" ? `${item.style.borderRadius}%` : undefined,
             }}
             title={item.name}
             onClick={handleClick}

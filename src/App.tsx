@@ -27,6 +27,8 @@ export interface ObjectItem {
     width: number;
     height: number;
     backgroundColor: string;
+    opacity?: number;
+    borderRadius?: number;
   };
   children?: ObjectItem[];
   parentId?: string | null;
@@ -82,7 +84,9 @@ function App() {
       style: {
         width: data.width,
         height: data.height,
-        backgroundColor: data.color
+        backgroundColor: data.color,
+        opacity: 1,
+        borderRadius: 0
       },
       parentId: data.parentId || null,
       children: data.type === "container" ? [] : undefined
@@ -162,7 +166,10 @@ function App() {
         const currentItem = findItemById(items, id);
         if (!currentItem || JSON.stringify(currentItem.style) === JSON.stringify(newStyle)) return;
 
-        const updatedItems = updateItemById(items, id, {style: newStyle});
+        const updatedItems = updateItemById(items, id, {style: {
+          ...currentItem.style,
+          ...newStyle
+        }});
         setItems(updatedItems);
         localStorage.setItem("objects", JSON.stringify(updatedItems));
     }
@@ -221,7 +228,7 @@ function App() {
                 className="bg-neutral-800 flex items-center px-4 text-lg font-bold"
                 style={{ gridArea: "header" }}
             >
-                <img src="/public/logo.webp" className="w-20" alt="logo"/>
+                <img src="/logo.webp" className="w-20" alt="logo"/>
             </header>
 
             {/* OBJECTS SIDEBAR */}

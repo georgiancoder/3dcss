@@ -10,6 +10,8 @@ const BasicControlls: React.FC<BasicControllsProps> = ({ item, onChange }) => {
     const [width, setWidth] = useState<number>(item.style.width);
     const [height, setHeight] = useState<number>(item.style.height);
     const [color, setColor] = useState<string>(item.style.backgroundColor);
+    const [opacity, setOpacity] = useState<number>(item.style.opacity ?? 1);
+    const [borderRadius, setBorderRadius] = useState<number>(item.style.borderRadius ?? 0);
 
     const prevTransformRef = useRef(item.style);
     const prevIdRef = useRef(item.id);
@@ -20,22 +22,28 @@ const BasicControlls: React.FC<BasicControllsProps> = ({ item, onChange }) => {
         const hasChanged =
             prev.width !== width ||
             prev.height !== height ||
-            prev.backgroundColor !== color;
+            prev.backgroundColor !== color ||
+            (prev.opacity ?? 1) !== opacity ||
+            (prev.borderRadius ?? 0) !== borderRadius;
 
         if (onChange && hasChanged) {
             onChange({
                 width,
                 height,
-                backgroundColor: color
+                backgroundColor: color,
+                opacity,
+                borderRadius
             }, item.id);
         }
-    }, [width, height, color, onChange]);
+    }, [width, height, color, opacity, borderRadius, onChange]);
 
     useEffect(() => {
         if(item.id !== prevIdRef?.current) {
             setWidth(item.style.width);
             setHeight(item.style.height);
             setColor(item.style.backgroundColor);
+            setOpacity(item.style.opacity ?? 1);
+            setBorderRadius(item.style.borderRadius ?? 0);
             prevIdRef.current = item.id;
         }
     }, [item, prevIdRef]);
@@ -50,6 +58,14 @@ const BasicControlls: React.FC<BasicControllsProps> = ({ item, onChange }) => {
 
     const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setColor(e.target.value);
+    };
+
+    const handleOpacityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setOpacity(Number(e.target.value));
+    };
+
+    const handleBorderRadiusChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setBorderRadius(Number(e.target.value));
     };
 
     return (
@@ -90,6 +106,36 @@ const BasicControlls: React.FC<BasicControllsProps> = ({ item, onChange }) => {
                         onChange={handleColorChange}
                         className="w-10 h-10 p-0 border-none bg-transparent mt-1 cursor-pointer"
                     />
+                </label>
+
+                {/* Opacity */}
+                <label className="flex flex-col text-xs text-gray-300">
+                    Opacity
+                    <input
+                        type="range"
+                        min={0}
+                        max={1}
+                        step={0.01}
+                        value={opacity}
+                        onChange={handleOpacityChange}
+                        className="mt-1"
+                    />
+                    <span className="text-xs mt-1">{opacity}</span>
+                </label>
+
+                {/* Border Radius */}
+                <label className="flex flex-col text-xs text-gray-300">
+                    Border Radius
+                    <input
+                        type="range"
+                        min={0}
+                        max={100}
+                        step={1}
+                        value={borderRadius}
+                        onChange={handleBorderRadiusChange}
+                        className="mt-1"
+                    />
+                    <span className="text-xs mt-1">{borderRadius}%</span>
                 </label>
             </form>
         </>
