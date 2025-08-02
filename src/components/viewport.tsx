@@ -33,8 +33,8 @@ const renderObject = (
                     left: "50%",
                     top: "50%",
                     translate: "-50% -50%",
-                    width: item.style.width,
-                    height: item.style.height,
+                    width: item.style?.width,
+                    height: item.style?.height,
                     transform: getTransform(item.transform),
                     transformStyle: "preserve-3d",
                     outline: item.id === selectedId ? "2px solid #3b82f6" : undefined,
@@ -55,9 +55,9 @@ const renderObject = (
         <div
             key={item.id}
             style={{
-                width: item.style.width,
-                height: item.style.height,
-                backgroundColor: item.style.backgroundColor,
+                width: item.style?.width,
+                height: item.style?.height,
+                backgroundColor: item.style?.backgroundColor,
                 position: "absolute",
                 left: "50%",
                 top: "50%",
@@ -68,7 +68,7 @@ const renderObject = (
                 zIndex: item.id === selectedId ? 2 : 1,
                 cursor: "pointer",
                 opacity: item?.style?.opacity,
-                borderRadius: typeof item?.style?.borderRadius === "number" ? `${item.style.borderRadius}%` : undefined,
+                borderRadius: typeof item?.style?.borderRadius === "number" ? `${item.style?.borderRadius}%` : undefined,
             }}
             title={item.name}
             onClick={handleClick}

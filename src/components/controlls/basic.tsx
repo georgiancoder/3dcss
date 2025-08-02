@@ -7,11 +7,11 @@ interface BasicControllsProps {
 }
 
 const BasicControlls: React.FC<BasicControllsProps> = ({ item, onChange }) => {
-    const [width, setWidth] = useState<number>(item.style.width);
-    const [height, setHeight] = useState<number>(item.style.height);
-    const [color, setColor] = useState<string>(item.style.backgroundColor);
-    const [opacity, setOpacity] = useState<number>(item.style.opacity ?? 1);
-    const [borderRadius, setBorderRadius] = useState<number>(item.style.borderRadius ?? 0);
+    const [width, setWidth] = useState<number>(item.style?.width);
+    const [height, setHeight] = useState<number>(item.style?.height);
+    const [color, setColor] = useState<string>(item.style?.backgroundColor);
+    const [opacity, setOpacity] = useState<number>(item.style?.opacity ?? 1);
+    const [borderRadius, setBorderRadius] = useState<number>(item.style?.borderRadius ?? 0);
 
     const prevTransformRef = useRef(item.style);
     const prevIdRef = useRef(item.id);
@@ -20,11 +20,11 @@ const BasicControlls: React.FC<BasicControllsProps> = ({ item, onChange }) => {
         const prev = prevTransformRef.current;
 
         const hasChanged =
-            prev.width !== width ||
-            prev.height !== height ||
-            prev.backgroundColor !== color ||
-            (prev.opacity ?? 1) !== opacity ||
-            (prev.borderRadius ?? 0) !== borderRadius;
+            prev?.width !== width ||
+            prev?.height !== height ||
+            prev?.backgroundColor !== color ||
+            (prev?.opacity ?? 1) !== opacity ||
+            (prev?.borderRadius ?? 0) !== borderRadius;
 
         if (onChange && hasChanged) {
             onChange({
@@ -39,11 +39,11 @@ const BasicControlls: React.FC<BasicControllsProps> = ({ item, onChange }) => {
 
     useEffect(() => {
         if(item.id !== prevIdRef?.current) {
-            setWidth(item.style.width);
-            setHeight(item.style.height);
-            setColor(item.style.backgroundColor);
-            setOpacity(item.style.opacity ?? 1);
-            setBorderRadius(item.style.borderRadius ?? 0);
+            setWidth(item.style?.width);
+            setHeight(item.style?.height);
+            setColor(item.style?.backgroundColor);
+            setOpacity(item.style?.opacity ?? 1);
+            setBorderRadius(item.style?.borderRadius ?? 0);
             prevIdRef.current = item.id;
         }
     }, [item, prevIdRef]);
