@@ -6,6 +6,7 @@ import Viewport from "./components/viewport.tsx";
 import BasicControlls from "./components/controlls/basic.tsx";
 import TransformControls from "./components/controlls/transforms.tsx";
 import OverlayMenu from "./components/overlay-menu.tsx";
+import BackgroundControlls from "./components/controlls/background.tsx";
 
 // Extend ObjectItem to support children and type
 export interface ObjectItem {
@@ -30,6 +31,11 @@ export interface ObjectItem {
     opacity?: number;
     borderRadius?: number;
   };
+  background?: {
+      backgroundImage?: string;
+      backgroundSize?: string;
+      backgroundPosition?: string;
+  },
   children?: ObjectItem[];
   parentId?: string | null;
 }
@@ -174,6 +180,18 @@ function App() {
         localStorage.setItem("objects", JSON.stringify(updatedItems));
     }
 
+    const handleBackgroundChange = (newBackground: ObjectItem["background"], id: string) => {
+        const currentItem = findItemById(items, id);
+        if (!currentItem || JSON.stringify(currentItem.background) === JSON.stringify(newBackground)) return;
+
+        const updatedItems = updateItemById(items, id, {background: {
+          ...currentItem.background,
+          ...newBackground
+        }});
+        setItems(updatedItems);
+        localStorage.setItem("objects", JSON.stringify(updatedItems));
+    }
+
   const handleCloneItem = (id: string) => {
     const findAndClone = (item: ObjectItem): ObjectItem => {
       const newId = `obj_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
@@ -290,7 +308,7 @@ function App() {
                 style={{ gridArea: "controls" }}
             >
                 <h3 className="font-semibold">Controls</h3>
-                <div className="overflow-y-auto no-scrollbar flex-1 space-y-2">
+                <div className="overflow-y-auto no-scrollbar flex-1 space-y-2 max-h-[-webkit-fill-available] pb-7">
                     {selectedId && activeItem && (
                         <>
                             <BasicControlls
@@ -298,6 +316,8 @@ function App() {
                                 onChange={(newStyle, id) => hanldeStyleChange(newStyle, id)
                                 }
                             />
+                            <div className="h-0.5 bg-neutral-700"></div>
+                            <BackgroundControlls item={activeItem} onChange={(newBackground, id) => handleBackgroundChange(newBackground, id)}/>
                             <div className="h-0.5 bg-neutral-700"></div>
                             <TransformControls
                                 item={activeItem}
