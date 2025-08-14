@@ -17,6 +17,8 @@ const TransformControls: React.FC<TransformControlsProps> = ({ item, onChange })
     const [scaleY, setScaleY] = useState<number>(item.transform.scaleY);
     const [scaleZ, setScaleZ] = useState<number>(item.transform.scaleZ);
 
+    const maximumRange = 1000; // Maximum range for translate
+
     const prevTransformRef = useRef(item.transform);
     const prevIdRef = useRef(item.id);
 
@@ -125,8 +127,8 @@ const TransformControls: React.FC<TransformControlsProps> = ({ item, onChange })
                         Translate X
                         <input
                             type="range"
-                            min={-500}
-                            max={500}
+                            min={-maximumRange}
+                            max={maximumRange}
                             value={translateX}
                             onChange={e => setTranslateX(Number(e.target.value))}
                             className="mt-1"
@@ -137,8 +139,8 @@ const TransformControls: React.FC<TransformControlsProps> = ({ item, onChange })
                         Translate Y
                         <input
                             type="range"
-                            min={-500}
-                            max={500}
+                            min={-maximumRange}
+                            max={maximumRange}
                             value={translateY}
                             onChange={e => setTranslateY(Number(e.target.value))}
                             className="mt-1"
@@ -149,8 +151,8 @@ const TransformControls: React.FC<TransformControlsProps> = ({ item, onChange })
                         Translate Z
                         <input
                             type="range"
-                            min={-500}
-                            max={500}
+                            min={-maximumRange}
+                            max={maximumRange}
                             value={translateZ}
                             onChange={e => setTranslateZ(Number(e.target.value))}
                             className="mt-1"

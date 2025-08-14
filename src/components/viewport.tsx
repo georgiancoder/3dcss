@@ -94,6 +94,8 @@ const Viewport: React.FC<ViewportProps> = ({ items, selectedId, onSelect }) => {
         return v ? Number(v) : 0;
     });
 
+
+    const MAX_FOV = 50000;
     // Save rotation to localStorage when changed
     useEffect(() => {
         localStorage.setItem("viewportRotateX", String(rotateX));
@@ -115,6 +117,30 @@ const Viewport: React.FC<ViewportProps> = ({ items, selectedId, onSelect }) => {
     useEffect(() => {
         localStorage.setItem("viewportZoom", String(zoom));
     }, [zoom]);
+
+    // Field of view state
+    const [fov, setFov] = useState(() => {
+        const v = localStorage.getItem("viewportFov");
+        return v ? Number(v) : 600;
+    });
+
+    useEffect(() => {
+        localStorage.setItem("viewportFov", String(fov));
+    }, [fov]);
+
+    // Keyboard handler for FOV
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.target && (e.target as HTMLElement).tagName === "INPUT") return;
+            if (e.key === "[") {
+                setFov(f => Math.max(100, f - 50));
+            } else if (e.key === "]") {
+                setFov(f => Math.min(MAX_FOV, f + 50));
+            }
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, []);
 
     // For mouse drag rotation
     const dragging = useRef(false);
@@ -212,9 +238,25 @@ const Viewport: React.FC<ViewportProps> = ({ items, selectedId, onSelect }) => {
                     />
                     <span>{zoom.toFixed(2)}x</span>
                 </label>
+                <label className="flex items-center gap-2 text-xs">
+                    FOV
+                    <input
+                        type="range"
+                        min={100}
+                        max={MAX_FOV}
+                        step={10}
+                        value={fov}
+                        onChange={e => setFov(Number(e.target.value))}
+                        style={{ width: 100 }}
+                    />
+                    <span>{fov}px</span>
+                </label>
             </div>
-            <div className="relative w-full h-full flex flex-col items-center justify-center transform-3d" id="viewport"
+            <div
+                className="relative w-full h-full flex flex-col items-center justify-center transform-3d"
+                id="viewport"
                 style={{
+                    perspective: `${fov}px`,
                     transform: `scale(${zoom}) rotateX(${rotateX}deg) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg)`,
                     transition: "transform 0.2s cubic-bezier(.4,2,.6,1)",
                 }}
