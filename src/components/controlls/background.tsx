@@ -53,7 +53,7 @@ const BackgroundControlls: React.FC<BackgroundControllsProps> = ({ item, onChang
                         min={1}
                         value={backgroundImg}
                         onChange={(e) => setBackgroundImage(e.target.value)}
-                        onPaste={(e) => setBackgroundImage(e.clipboardData.getData('text'))}
+                        onPaste={(e) => setBackgroundImage(e.clipboardData?.getData('text'))}
                         className="mt-1 rounded-md px-3 py-2 bg-neutral-800 border border-neutral-700 text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                 </label>

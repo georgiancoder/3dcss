@@ -133,13 +133,24 @@ function App() {
   };
 
   const handleDeleteItem = (id: string) => {
-    const updatedItems = items.filter(item => item.id !== id);
-    localStorage.setItem("objects", JSON.stringify(updatedItems));
-    setItems(updatedItems);
-    // If the deleted item was selected, select the last item or null
-    if (selectedId === id) {
-      setSelectedId(updatedItems.length > 0 ? updatedItems[updatedItems.length - 1].id : null);
-    }
+      const removeItemById = (items: ObjectItem[], id: string): ObjectItem[] => {
+          return items
+              .map(item => {
+                  if (item.children) {
+                      return { ...item, children: removeItemById(item.children, id) };
+                  }
+                  return item;
+              })
+              .filter(item => item.id !== id);
+      };
+
+      const updatedItems = removeItemById(items, id);
+      localStorage.setItem("objects", JSON.stringify(updatedItems));
+      setItems(updatedItems);
+      // If the deleted item was selected, select the last item or null
+      if (selectedId === id) {
+          setSelectedId(updatedItems.length > 0 ? updatedItems[updatedItems.length - 1].id : null);
+      }
   };
 
 
