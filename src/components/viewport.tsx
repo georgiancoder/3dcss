@@ -105,6 +105,17 @@ const Viewport: React.FC<ViewportProps> = ({ items, selectedId, onSelect }) => {
         localStorage.setItem("viewportRotateZ", String(rotateZ));
     }, [rotateZ]);
 
+    // Zoom state
+    const [zoom, setZoom] = useState(() => {
+        const v = localStorage.getItem("viewportZoom");
+        return v ? Number(v) : 1;
+    });
+
+    // Save zoom to localStorage
+    useEffect(() => {
+        localStorage.setItem("viewportZoom", String(zoom));
+    }, [zoom]);
+
     // For mouse drag rotation
     const dragging = useRef(false);
     const lastPos = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
@@ -135,10 +146,20 @@ const Viewport: React.FC<ViewportProps> = ({ items, selectedId, onSelect }) => {
         window.removeEventListener("mouseup", handleMouseUp);
     };
 
+    // Mouse wheel for zoom
+    const handleWheel = (e: React.WheelEvent) => {
+        if (e.ctrlKey) return; // Let browser zoom if ctrl is pressed
+        e.preventDefault();
+        let nextZoom = zoom - e.deltaY * 0.001;
+        nextZoom = Math.max(0.1, Math.min(5, nextZoom));
+        setZoom(nextZoom);
+    };
+
     return (
         <div
             className="relative w-full h-full"
             onMouseDown={handleMouseDown}
+            onWheel={handleWheel}
             style={{ cursor: dragging.current ? "grab" : "default" }}
         >
             <div className="absolute bottom-0 right-0 z-10 bg-neutral-800 bg-opacity-80 p-2 rounded flex flex-col gap-2">
@@ -178,10 +199,23 @@ const Viewport: React.FC<ViewportProps> = ({ items, selectedId, onSelect }) => {
                     />
                     <span>{rotateZ}°</span>
                 </label>
+                <label className="flex items-center gap-2 text-xs">
+                    Zoom
+                    <input
+                        type="range"
+                        min={0.1}
+                        max={5}
+                        step={0.01}
+                        value={zoom}
+                        onChange={e => setZoom(Number(e.target.value))}
+                        style={{ width: 100 }}
+                    />
+                    <span>{zoom.toFixed(2)}x</span>
+                </label>
             </div>
             <div className="relative w-full h-full flex flex-col items-center justify-center transform-3d" id="viewport"
                 style={{
-                    transform: `rotateX(${rotateX}deg) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg)`,
+                    transform: `scale(${zoom}) rotateX(${rotateX}deg) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg)`,
                     transition: "transform 0.2s cubic-bezier(.4,2,.6,1)",
                 }}
             >
