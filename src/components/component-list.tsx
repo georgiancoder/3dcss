@@ -8,6 +8,7 @@ interface ComponentListProps {
     onDelete: (id: string) => void;
     onClone?: (id: string) => void;
     onAddSubObject?: (parentId: string) => void;
+    onRename?: (id: string, name: string) => void; // added
 }
 
 const ComponentList: React.FC<ComponentListProps> = ({
@@ -16,7 +17,8 @@ const ComponentList: React.FC<ComponentListProps> = ({
     onSelect,
     onDelete,
     onClone,
-    onAddSubObject
+    onAddSubObject,
+    onRename
 }) => {
     // Load collapsed state from localStorage or default to collapsed
     const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() => {
@@ -65,6 +67,18 @@ const ComponentList: React.FC<ComponentListProps> = ({
         });
     };
 
+    // rename state
+    const [editingId, setEditingId] = useState<string | null>(null);
+    const [editingValue, setEditingValue] = useState("");
+
+    const commitEdit = () => {
+        if (editingId && editingValue.trim() && onRename) {
+            onRename(editingId, editingValue.trim());
+        }
+        setEditingId(null);
+    };
+    const cancelEdit = () => setEditingId(null);
+
     // Recursive render function with collapse support
     const renderItem = (
         item: ObjectItem,
@@ -76,7 +90,14 @@ const ComponentList: React.FC<ComponentListProps> = ({
             style={{ marginLeft: level * 16 }}
             onClick={(e) => { e.stopPropagation(); onSelect(item.id); }}
         >
-            <span className="flex-1 flex items-center gap-1">
+            <span
+                className="flex-1 flex items-center gap-1"
+                onDoubleClick={e => {
+                    e.stopPropagation();
+                    setEditingId(item.id);
+                    setEditingValue(item.name);
+                }}
+            >
                 {item.type === "container" && (
                     <button
                         className="text-xs text-gray-400 hover:text-white mr-1"
@@ -92,7 +113,22 @@ const ComponentList: React.FC<ComponentListProps> = ({
                     </button>
                 )}
                 {item.type === "container" ? "🗂️ " : ""}
-                {item.name}
+                {editingId === item.id ? (
+                    <input
+                        className="bg-neutral-800 border border-neutral-500 rounded px-1 py-0.5 text-sm w-full"
+                        value={editingValue}
+                        autoFocus
+                        onClick={e => e.stopPropagation()}
+                        onChange={e => setEditingValue(e.target.value)}
+                        onKeyDown={e => {
+                            if (e.key === "Enter") commitEdit();
+                            else if (e.key === "Escape") cancelEdit();
+                        }}
+                        onBlur={commitEdit}
+                    />
+                ) : (
+                    item.name
+                )}
             </span>
             <div className="flex gap-1">
                 {item.type === "container" && onAddSubObject && (

@@ -235,7 +235,14 @@ function App() {
     setItems(updatedItems);
   };
 
-    const activeItem = findItemById(items, selectedId || "") || null;
+  const handleRenameItem = (id: string, name: string) => {
+      const updated = updateItemById(items, id, { name });
+      setItems(updated);
+      localStorage.setItem("objects", JSON.stringify(updated));
+      if (selectedId === id) setSelectedId(id);
+  };
+
+  const activeItem = findItemById(items, selectedId || "") || null;
 
   return (
     <>
@@ -285,6 +292,7 @@ function App() {
                         onDelete={handleDeleteItem}
                         onClone={handleCloneItem}
                         onAddSubObject={(parentId) => setModalOpen({ type: "object", parentId })}
+                        onRename={handleRenameItem} // added
                     />
                 </div>
             </aside>
