@@ -94,6 +94,8 @@ const Viewport: React.FC<ViewportProps> = ({ items, selectedId, onSelect }) => {
         return v ? Number(v) : 0;
     });
 
+    const [pan, setPan] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+
 
     const MAX_FOV = 50000;
     // Save rotation to localStorage when changed
@@ -146,13 +148,20 @@ const Viewport: React.FC<ViewportProps> = ({ items, selectedId, onSelect }) => {
     const dragging = useRef(false);
     const lastPos = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
     const lastRotate = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+    const lastPan = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+    const dragMode = useRef<"rotate" | "pan">("rotate");
+    const PAN_SPEED = 0.05; // slower pan speed
+
+    lastPan.current = { x: pan?.x ?? 0, y: pan?.y ?? 0 };
 
     const handleMouseDown = (e: React.MouseEvent) => {
-        if (e.button !== 1) return; // Only middle mouse button
+        if (e.button !== 1) return;
         e.preventDefault();
         dragging.current = true;
         lastPos.current = { x: e.clientX, y: e.clientY };
         lastRotate.current = { x: rotateX, y: rotateY };
+        lastPan.current = { x: pan.x, y: pan.y };
+        dragMode.current = e.shiftKey ? "pan" : "rotate";
         window.addEventListener("mousemove", handleMouseMove);
         window.addEventListener("mouseup", handleMouseUp);
     };
@@ -161,8 +170,15 @@ const Viewport: React.FC<ViewportProps> = ({ items, selectedId, onSelect }) => {
         if (!dragging.current) return;
         const dx = e.clientX - lastPos.current.x;
         const dy = e.clientY - lastPos.current.y;
-        setRotateY(lastRotate.current.y + dx);
-        setRotateX(lastRotate.current.x - dy);
+        if (dragMode.current === "rotate") {
+            setRotateY(lastRotate.current.y + dx);
+            setRotateX(lastRotate.current.x - dy);
+        } else {
+            setPan({
+                x: lastPan.current.x + dx * PAN_SPEED,
+                y: lastPan.current.y + dy * PAN_SPEED
+            });
+        }
     };
 
     const handleMouseUp = (e: MouseEvent) => {
@@ -186,7 +202,7 @@ const Viewport: React.FC<ViewportProps> = ({ items, selectedId, onSelect }) => {
             className="relative w-full h-full"
             onMouseDown={handleMouseDown}
             onWheel={handleWheel}
-            style={{ cursor: dragging.current ? "grab" : "default" }}
+            style={{ cursor: dragging.current ? (dragMode.current === "pan" ? "move" : "grab") : "default" }}
         >
             <div className="absolute bottom-0 right-0 z-10 bg-neutral-800 bg-opacity-80 p-2 rounded flex flex-col gap-2">
                 <label className="flex items-center gap-2 text-xs">
@@ -257,8 +273,8 @@ const Viewport: React.FC<ViewportProps> = ({ items, selectedId, onSelect }) => {
                 id="viewport"
                 style={{
                     perspective: `${fov}px`,
-                    transform: `scale(${zoom}) rotateX(${rotateX}deg) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg)`,
-                    transition: "transform 0.2s cubic-bezier(.4,2,.6,1)",
+                    transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom}) rotateX(${rotateX}deg) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg)`,
+                    transition: dragging.current ? "none" : "transform 0.2s cubic-bezier(.4,2,.6,1)",
                 }}
             >
                 {items.map(item => renderObject(item, selectedId, onSelect))}
