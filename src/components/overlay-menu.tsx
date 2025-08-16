@@ -18,6 +18,19 @@ const OverlayMenu: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         }
     };
 
+    const handleExportJson = () => {
+        const data = JSON.parse(localStorage.getItem("objects") || "[]");
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "objects.json";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+    };
+
     return (
         <div
             className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-30"
@@ -33,14 +46,24 @@ const OverlayMenu: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                     <line x1="15" y1="5" x2="5" y2="15" stroke="black" strokeWidth="2"/>
                 </svg>
             </button>
-            {/* Copy HTML code button */}
-            <button
-                className="absolute top-4 right-16 z-40 bg-green-500 text-white rounded-full p-2 shadow hover:bg-green-600 cursor-pointer"
-                onClick={handleCopy}
-                title="Copy Viewport HTML"
-            >
-                copy
-            </button>
+            <div className="flex flex-col justify-start w-full h-full items-end px-14 py-12 gap-2">
+                {/* Copy HTML code button */}
+                <button
+                    className=" bg-green-500 text-white rounded-full px-3 py-2 shadow hover:bg-green-600 cursor-pointer text-sm"
+                    onClick={handleCopy}
+                    title="Copy Viewport HTML"
+                >
+                    Copy HTML
+                </button>
+                {/* Export JSON button */}
+                <button
+                    className="bg-indigo-500 text-white rounded-full px-3 py-2 shadow hover:bg-indigo-600 cursor-pointer text-sm"
+                    onClick={handleExportJson}
+                    title="Export JSON"
+                >
+                    Export JSON
+                </button>
+            </div>
         </div>
     );
 };
