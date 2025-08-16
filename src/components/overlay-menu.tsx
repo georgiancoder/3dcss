@@ -1,6 +1,9 @@
-import React from "react";
+import React, { useRef } from "react";
+import type {ObjectItem} from "../App.tsx";
 
-const OverlayMenu: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+const OverlayMenu: React.FC<{ onClose: () => void; onImport: (data: ObjectItem[]) => void }> = ({ onClose, onImport }) => {
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
+
     const handleCopy = () => {
         const viewportDiv = document.getElementById("viewport");
         if (viewportDiv) {
@@ -29,6 +32,29 @@ const OverlayMenu: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         a.click();
         a.remove();
         URL.revokeObjectURL(url);
+    };
+
+    const handleImportClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleFileChange: React.ChangeEventHandler<HTMLInputElement> = e => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+            try {
+                const json = JSON.parse(String(reader.result));
+                if (Array.isArray(json)) {
+                    onImport(json);
+                }
+            } catch {
+                // silently ignore invalid JSON
+            } finally {
+                e.target.value = "";
+            }
+        };
+        reader.readAsText(file);
     };
 
     return (
@@ -63,6 +89,21 @@ const OverlayMenu: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 >
                     Export JSON
                 </button>
+                {/* Import JSON button */}
+                <button
+                    className="bg-yellow-500 text-white rounded-full px-3 py-2 shadow hover:bg-yellow-600 cursor-pointer text-sm"
+                    onClick={handleImportClick}
+                    title="Import JSON"
+                >
+                    Import JSON
+                </button>
+                <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="application/json,.json"
+                    className="hidden"
+                    onChange={handleFileChange}
+                />
             </div>
         </div>
     );

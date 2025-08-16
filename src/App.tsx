@@ -244,6 +244,13 @@ function App() {
 
   const activeItem = findItemById(items, selectedId || "") || null;
 
+  const handleImportJson = (data: ObjectItem[]) => {
+    if (!Array.isArray(data)) return;
+    localStorage.setItem("objects", JSON.stringify(data));
+    setItems(data);
+    setSelectedId(data.length ? data[data.length - 1].id : null);
+  };
+
   return (
     <>
         <div
@@ -316,7 +323,10 @@ function App() {
                 </button>
                 {/* Overlay */}
                 {overlayOpen && (
-                    <OverlayMenu onClose={() => setOverlayOpen(false)} />
+                    <OverlayMenu
+                        onClose={() => setOverlayOpen(false)}
+                        onImport={handleImportJson}
+                    />
                 )}
                 <Viewport items={items} selectedId={selectedId} onSelect={handleSelect} />
             </main>
